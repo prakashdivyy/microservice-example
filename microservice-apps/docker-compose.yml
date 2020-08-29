@@ -1,5 +1,39 @@
 version: "3.8"
 services:
+  product_service:
+    build:
+      context: ./product-service/. # The path of the Dockerfile
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_TYPE: mysql
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: product_db
+    networks:
+      - microservice_network
+
+  gateway_service:
+    build:
+      context: ./gateway-service/. # The path of the Dockerfile
+    restart: always
+    depends_on:
+      - rmq
+    environment:
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "3000"
+      PROTO_LOCATION: "./products.proto"
+      PRODUCT_SERVICE_HOST: product_service
+      PRODUCT_SERVICE_PORT: "50050"
+      RABBIT_HOST: rmq
+    ports:
+      - 8080:3000
+    networks:
+      - microservice_network
+
   mailer_service:
     build:
       context: ./mailer-service/. # The path of the Dockerfile
@@ -28,7 +62,7 @@ services:
     image: mysql:5
     restart: always
     environment:
-      MYSQL_DATABASE: laravel
+      MYSQL_DATABASE: product_db
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: root
       MYSQL_PASSWORD: root

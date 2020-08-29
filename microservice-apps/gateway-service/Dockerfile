@@ -11,6 +11,8 @@ RUN npm install
 # Bundle app source
 COPY server.js .
 
+COPY products.proto .
+
 EXPOSE 3000
 
 CMD [ "node", "server.js" ]
