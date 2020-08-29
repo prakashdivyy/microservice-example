@@ -23,19 +23,32 @@ type Server struct {
 // CreateProduct function implementation
 func (s *Server) CreateProduct(context context.Context, in *rpc.CreateProductRequest) (*rpc.ProductResponse, error) {
 	product := products.Product{Name: in.Name, Stock: in.Stock}
-	s.DB.Save(&product)
+	log.Printf("Creating product with name %s and stock %d", product.Name, product.Stock)
+	err := s.DB.Save(&product).Error
+	if err != nil {
+		return &rpc.ProductResponse{}, err
+	}
+	log.Printf("Success create product with name %s and id %d", product.Name, product.ID)
 	return &rpc.ProductResponse{Id: int32(product.ID), Name: product.Name, Stock: product.Stock}, nil
 }
 
 // GetProduct function implementation
 func (s *Server) GetProduct(context context.Context, in *rpc.GetProductRequest) (*rpc.ProductResponse, error) {
+	log.Printf("Get product with id %d", in.Id)
 	var product products.Product
 	s.DB.Where("id = ?", in.Id).Find(&product).Limit(1)
+	if product.ID == 0 {
+		log.Printf("Product with id %d not found", in.Id)
+	} else {
+		log.Printf("Product with id %d found", in.Id)
+	}
 	return &rpc.ProductResponse{Id: int32(product.ID), Name: product.Name, Stock: product.Stock}, nil
 }
 
 func main() {
 	db := configs.InitDB()
+
+	log.Println("Starting product-service on port 50050...")
 
 	// create a listener on TCP port 50050
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50050))
