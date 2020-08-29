@@ -30,7 +30,7 @@ func (s *Server) CreateProduct(context context.Context, in *rpc.CreateProductReq
 // GetProduct function implementation
 func (s *Server) GetProduct(context context.Context, in *rpc.GetProductRequest) (*rpc.ProductResponse, error) {
 	var product products.Product
-	s.DB.First(&product).Where("id = ?", in.Id)
+	s.DB.Where("id = ?", in.Id).Find(&product).Limit(1)
 	return &rpc.ProductResponse{Id: int32(product.ID), Name: product.Name, Stock: product.Stock}, nil
 }
 
