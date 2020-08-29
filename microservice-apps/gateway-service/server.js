@@ -82,6 +82,21 @@ app.get("/products/:id", (req, res) => {
   });
 });
 
+app.post("/products", (req, res) => {
+  const { name, stock } = req.body;
+  client.createProduct({ name, stock }, (error, response) => {
+    if (!error) {
+      if (response.id === 0) {
+        res.sendStatus(404);
+      } else {
+        res.send(response);
+      }
+    } else {
+      res.sendStatus(500);
+    }
+  });
+});
+
 app.listen(port, host, () => {
   console.log(`gateway-service listening at http://${host}:${port}`);
 });
