@@ -40,6 +40,8 @@ app.post("/login", (req, res) => {
   // TODO: Check email and password on auth-service
   const { email, password } = req.body;
 
+  console.log(`Request login from ${email}`);
+
   amqp.connect(`amqp://${rabbitHost}`, function (error0, connection) {
     if (error0) {
       throw error0;
@@ -68,15 +70,19 @@ app.post("/login", (req, res) => {
 
 app.get("/products/:id", (req, res) => {
   const id = parseInt(req.params.id, 10);
-  console.log(id);
   client.getProduct({ id }, (error, response) => {
     if (!error) {
       if (response.id === 0) {
+        console.log(`Product with id ${id} not found`);
         res.sendStatus(404);
       } else {
+        console.log(
+          `Success get product ${response.name} with id ${response.id}`
+        );
         res.send(response);
       }
     } else {
+      console.log(`Error get product with id ${id}`);
       res.sendStatus(500);
     }
   });
@@ -89,9 +95,13 @@ app.post("/products", (req, res) => {
       if (response.id === 0) {
         res.sendStatus(404);
       } else {
+        console.log(
+          `Success create product ${response.name} with id ${response.id}`
+        );
         res.send(response);
       }
     } else {
+      console.log(`Error create product ${name}`);
       res.sendStatus(500);
     }
   });
