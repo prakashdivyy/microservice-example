@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 COPY receive.py .
 
 # command to run on container start
-CMD [ "python", "./receive.py" ]
+CMD [ "python", "-u", "./receive.py" ]

@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  mailer_service:
+    build:
+      context: ./mailer-service/. # The path of the Dockerfile
+    restart: always
+    depends_on:
+      - rmq
+    environment:
+      RABBIT_HOST: rmq
+      MAIL_USERNAME: a431d9bb2b419b
+      MAIL_PASSWORD: 798bb9b1cc6b5b
+      SMTP_HOST: smtp.mailtrap.io
+      SMTP_PORT: 2525
+    networks:
+      - microservice_network
+
+  rmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - microservice_network
+
+  db:
+    image: mysql:5
+    restart: always
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./mysql:/var/lib/mysql"
+    networks:
+      - microservice_network
+
+networks:
+  microservice_network:
+    driver: bridge
